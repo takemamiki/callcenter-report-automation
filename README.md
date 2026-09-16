@@ -8,19 +8,17 @@
 実データは一切使用せず、すべて架空のデータで構築しています。
 
 ## 構成
-
-```
 callcenter-report-automation/
-├── generate_fake_data.py       # 架空データ生成（Python）
+├── generate_fake_data.py # 架空データ生成（Python）
 ├── data/
-│   └── callcenter_report.csv   # 生成されたCSVデータ
-├── callcenter-report-automation.xlsm  # 集計・グラフ化（Excel VBA）
+│ └── callcenter_report.csv # 生成されたCSVデータ
+├── callcenter-report-automation.xlsm # 集計・グラフ化（Excel VBA）
 └── README.md
-```
+
 
 処理は2段構えです。
 
-1. **generate_fake_data.py**（Python）で、日次の架空コールセンターデータをCSV出力
+1. **generate_fake_data.py**（Python）で、日勤/夜勤シフトごとの架空コールセンターデータをCSV出力
 2. **callcenter-report-automation.xlsm**（Excel VBA）で、そのCSVを取り込み、集計・グラフ化
 
 ## データ項目
@@ -28,7 +26,7 @@ callcenter-report-automation/
 | 列 | 内容 |
 |---|---|
 | date | 日付 |
-| shift | シフト区分（現状は夜勤のみで運用） |
+| shift | シフト区分（day＝日勤／night＝夜勤） |
 | auth_request_count | 加盟店オーソリ取得入電数 |
 | cardholder_inquiry_count | カード会員問い合わせ入電数 |
 | lost_stolen_count | 紛失・盗難入電数 |
@@ -45,6 +43,7 @@ callcenter-report-automation/
 - **月別集計**：月ごとの各項目の合計・平均を折れ線グラフで可視化
 - **曜日別集計**：曜日ごとの各項目の平均入電数を積み上げ棒グラフで可視化
 - **項目別統計**：各項目の合計・平均・最大・最小を一覧化
+- **シフト別集計**：日勤/夜勤ごとの各項目の合計・平均を、比較しやすいクラスター棒グラフで可視化
 
 ## 実装で詰まった点と対応
 
@@ -56,8 +55,8 @@ callcenter-report-automation/
 
 ## 今後の拡張アイデア
 
-- 時間帯別（hourly）集計：日次データより実態に即すが、v1では複雑化を避けるため見送り
-- シフト（日勤/夜勤）別集計：現状はデータが夜勤のみのため未実装。日勤データを追加した上で、シフト別の入電傾向比較を検討
+- 時間帯別（hourly）集計：日次データより実態に即すが、複雑化を避けるため見送り中
+- 複数月データへの対応：現状は1ヶ月分のみのため、月別推移グラフを実質的に機能させるには複数月分のデータ生成が必要
 
 ## 技術スタック
 
