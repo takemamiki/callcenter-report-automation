@@ -13,8 +13,8 @@ import csv
 import random
 from datetime import date, timedelta
 
-START_DATE = date(2026, 8, 1)
-DAYS = 30 
+START_DATE = date(2025, 9, 1)
+DAYS = 365
 CSV_PATH = "data/callcenter_report.csv"
 FIELDNAMES = ["date", "shift", "auth_request_count", "cardholder_inquiry_count", "lost_stolen_count"]
 

@@ -19,7 +19,7 @@ callcenter-report-automation/
 
 処理は2段構えです。
 
-1. **generate_fake_data.py**（Python）で、日勤/夜勤シフトごとの架空コールセンターデータ（日次）と、0〜23時の時間帯別データをそれぞれCSV出力
+1. **generate_fake_data.py**（Python）で、日勤/夜勤シフトごとの架空コールセンターデータ（日次）と、0〜23時の時間帯別データをそれぞれCSV出力（直近1年分＝365日）
 2. **callcenter-report-automation.xlsm**（Excel VBA）で、その2つのCSVを取り込み、集計・グラフ化
 
 ## データ項目
@@ -31,7 +31,7 @@ callcenter-report-automation/
 | date | 日付 |
 | shift | シフト区分（日勤／夜勤） |
 | auth_request_count | 加盟店オーソリ取得入電数 |
-| cardholder_inquiry_count | カード会員問い合わせ入電数 |
+| cardholder_inquiry_count | カード会員問合せ入電数 |
 | lost_stolen_count | 紛失・盗難入電数 |
 
 **時間帯別（callcenter_hourly_report.csv）**
@@ -44,7 +44,7 @@ callcenter-report-automation/
 | hour | 時刻（0〜23） |
 | shift | シフト区分（日勤／夜勤、時刻から自動判定） |
 | auth_request_count | 加盟店オーソリ取得入電数（時間帯別） |
-| cardholder_inquiry_count | カード会員問い合わせ入電数（時間帯別） |
+| cardholder_inquiry_count | カード会員問合せ入電数（時間帯別） |
 | lost_stolen_count | 紛失・盗難入電数（時間帯別） |
 | call_count | 着信数（実績） |
 | planned_call_count | 着信計画 |
@@ -56,7 +56,7 @@ callcenter-report-automation/
 
 ## 使い方
 
-1. `generate_fake_data.py` を実行し、`data/callcenter_report.csv` と `data/callcenter_hourly_report.csv` を生成
+1. `generate_fake_data.py` を実行し、`data/callcenter_report.csv` と `data/callcenter_hourly_report.csv` を生成（直近1年分・365日）
 2. `callcenter-report-automation.xlsm` を開き、マクロを有効化
 3. `ImportCallCenterData` マクロを実行し、日次CSVをDataシートに取り込み
 4. `ImportHourlyData` マクロを実行し、時間帯別CSVをHourlyDataシートに取り込み
@@ -64,11 +64,12 @@ callcenter-report-automation/
 
 ## できること（Summaryシート）
 
-- **月別集計**：月ごとの各項目の合計・平均を折れ線グラフで可視化
+- **月別集計**：月ごとの各項目の合計・平均を折れ線グラフで可視化（1年分のため12ヶ月分の推移が見える）
 - **曜日別集計**：曜日ごとの各項目の平均入電数を積み上げ棒グラフで可視化
 - **項目別統計**：各項目の合計・平均・最大・最小を一覧化
 - **シフト別集計**：日勤/夜勤ごとの各項目の合計・平均を、比較しやすいクラスター棒グラフで可視化
-- **時間帯別集計**：0〜23時それぞれの30日平均を算出し、着信数実績と着信計画を並べた折れ線グラフで、1日の呼量カーブと計画とのズレを可視化
+- **時間帯別集計**：0〜23時それぞれの1年平均を算出し、着信数実績と着信計画を並べた折れ線グラフで、1日の呼量カーブと計画とのズレを可視化
+- 全グラフで色分けを統一（オーソリ＝青、会員問合せ＝赤、紛失盗難＝緑）し、目盛り線もデータの実際の範囲に合わせて自動調整（3〜4本程度に抑えて読みやすく）
 
 ## 実装で詰まった点と対応
 
@@ -78,11 +79,12 @@ callcenter-report-automation/
 - **Dictionary.Keysの型不一致**：`Scripting.Dictionary`の`.Keys`メソッドは文字列配列ではなくVariant配列を返す仕様のため、受け取り側の型宣言を`Variant`に修正
 - **グラフの余分な系列**：`.SetSourceData`と`.SeriesCollection.NewSeries`を併用すると、自動生成される既定系列とインデックスがズレて空の系列が残るバグが発生。`SetSourceData`を使わず、`NewSeries`の戻り値を直接受け取る形に修正して解決
 - **`Option Explicit`の重複記述**：モジュール内に`Option Explicit`が2回記述されていたことが原因で、モジュールレベルで宣言したはずの`Const`が別プロシージャから「変数が定義されていません」エラーになる現象が発生。重複を削除し、宣言セクションを一本化して解決
+- **棒グラフに線用のスタイル関数を適用**：配色統一の実装時、折れ線グラフ用の`ApplyLineStyle`（線の色を変更）を誤って棒グラフに適用してしまい、色が反映されない現象が発生。棒グラフの塗りつぶし色を変えるには`ApplyBarStyle`（Fill.ForeColor）が必要で、グラフの種類ごとに適切な関数を使い分ける必要があると再確認
 
 ## 今後の拡張アイデア
 
-- 複数月データへの対応：現状は1ヶ月分のみのため、月別推移グラフを実質的に機能させるには複数月分のデータ生成が必要
-- 時間帯×シフトのクロス集計：現状は時間帯別（全体平均）とシフト別（日次合計）を別々に集計しているが、両方を組み合わせた詳細分析も拡張候補
+- 時間帯×シフトのクロス集計：現状は時間帯別（全体平均）とシフト別（日次合計）を別々に集計しているが、shiftはhourに従属する値のため情報量が薄く、優先度は低いと判断
+- 着信計画差異（call_variance）だけを取り出した専用グラフ：時間帯別の実績・計画の折れ線グラフは値が近く差が見えにくいため、差異のみを棒グラフで見せる形も検討候補
 
 ## 技術スタック
 
