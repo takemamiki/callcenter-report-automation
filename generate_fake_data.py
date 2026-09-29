@@ -104,7 +104,55 @@ def _normal_answer_rate() -> float:
     return random.uniform(0.90, 0.98)
 
 
-def generate_one_hour(target_date: date, business_date: date, hour: int) -> dict:
+SICK_LEAVE_WINTER_MONTHS = {12, 1, 2}
+SICK_LEAVE_PROB_WINTER = 2.5 / 30   # 冬：月2〜3回 → 1日あたりの確率
+SICK_LEAVE_PROB_NORMAL = 1.0 / 30   # それ以外：月1回
+
+
+def is_sick_leave_day(business_date: date) -> bool:
+    """その業務日の夜勤で、病欠が発生するかどうかを判定する"""
+    if business_date.month in SICK_LEAVE_WINTER_MONTHS:
+        prob = SICK_LEAVE_PROB_WINTER
+    else:
+        prob = SICK_LEAVE_PROB_NORMAL
+    return random.random() < prob
+
+
+def is_sick_leave_day(business_date: date) -> bool:
+    """その業務日の夜勤で、病欠が発生するかどうかを判定する"""
+    if business_date.month in SICK_LEAVE_WINTER_MONTHS:
+        prob = SICK_LEAVE_PROB_WINTER
+    else:
+        prob = SICK_LEAVE_PROB_NORMAL
+    return random.random() < prob
+
+
+def generate_incident_periods() -> list:
+    """365日の期間中に、障害が起きる(開始日時, 継続時間)のリストを作る"""
+    incident_count = random.randint(2, 3)  # 年2〜3回
+    periods = []
+    for _ in range(incident_count):
+        day_offset = random.randint(0, DAYS - 1)
+        start_hour = random.randint(0, 23)
+        duration = random.randint(2, 4)  # 継続2〜4時間
+        incident_date = START_DATE + timedelta(days=day_offset)
+        periods.append((incident_date, start_hour, duration))
+    return periods
+
+
+def is_incident_hour(target_date: date, hour: int, incident_periods: list) -> bool:
+    """target_dateのhour時が、いずれかの障害期間に含まれるかを判定する"""
+    for incident_date, start_hour, duration in incident_periods:
+        for offset in range(duration):
+            check_hour = (start_hour + offset) % 24
+            check_date = incident_date + timedelta(days=(start_hour + offset) // 24)
+            if target_date == check_date and hour == check_hour:
+                return True
+    return False
+
+
+def generate_one_hour(target_date: date, business_date: date, hour: int,
+                       sick_leave_today: bool, incident_now: bool) -> dict:
     shift = HOUR_TO_SHIFT[hour]
     planned_by_category = _planned_for_hour(hour)
     planned_call_count = round(sum(planned_by_category.values()))
@@ -113,13 +161,26 @@ def generate_one_hour(target_date: date, business_date: date, hour: int) -> dict
         category: max(0, round(base * random.uniform(*JITTER_RANGE)))
         for category, base in planned_by_category.items()
     }
+
+    # 障害時：オーソリ2〜3倍、会員問い合わせ1.2〜1.5倍
+    if incident_now:
+        actual_counts["auth_request_count"] = round(
+            actual_counts["auth_request_count"] * random.uniform(2.0, 3.0)
+        )
+        actual_counts["cardholder_inquiry_count"] = round(
+            actual_counts["cardholder_inquiry_count"] * random.uniform(1.2, 1.5)
+        )
+
     call_count = sum(actual_counts.values())
     call_variance = call_count - planned_call_count
 
-    # 応答率の生値（工程⑥以降は「平常値と発生中の事象の最小値」をここで決める）
+    # 応答率の生値：平常値を基本に、病欠・障害で上書き
     raw_rate = _normal_answer_rate()
+    if shift == "夜勤" and sick_leave_today:
+        raw_rate = random.uniform(0.60, 0.70)
+    if incident_now:
+        raw_rate = max(0.0, raw_rate - random.uniform(0.20, 0.30))
 
-    # 応答数を確定させてから、応答率を実数から計算し直す（CSV内の矛盾を防ぐ）
     answered_count = round(call_count * raw_rate)
     answer_rate = round(answered_count / call_count, 3) if call_count > 0 else 0.0
 
@@ -141,14 +202,20 @@ def generate_one_hour(target_date: date, business_date: date, hour: int) -> dict
 
 def generate_all_hours() -> list:
     records = []
+    incident_periods = generate_incident_periods()   # ← プログラム全体で1回だけ
+
     for i in range(DAYS):
         business_date = START_DATE + timedelta(days=i)
+        sick_leave_today = is_sick_leave_day(business_date)
         for hour in BUSINESS_DAY_HOURS:
             if hour >= 9:
                 target_date = business_date
             else:
                 target_date = business_date + timedelta(days=1)
-            records.append(generate_one_hour(target_date, business_date, hour))
+            incident_now = is_incident_hour(target_date, hour, incident_periods)
+            records.append(generate_one_hour(
+                target_date, business_date, hour, sick_leave_today, incident_now
+            ))
     return records
 
 
