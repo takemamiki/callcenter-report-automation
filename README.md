@@ -81,8 +81,6 @@ callcenter-report-automation/
 - **CSV取り込み時の文字化け**：`Workbooks.Open`や`OpenText`では日本語が文字化けしたため、`QueryTables`経由で`TextFilePlatform=65001`（UTF-8）を明示して解決
 - **Dictionary.Keysの型不一致**：`Scripting.Dictionary`の`.Keys`メソッドは文字列配列ではなくVariant配列を返す仕様のため、受け取り側の型宣言を`Variant`に修正
 - **グラフの余分な系列**：`.SetSourceData`と`.SeriesCollection.NewSeries`を併用すると、自動生成される既定系列とインデックスがズレて空の系列が残るバグが発生。`SetSourceData`を使わず、`NewSeries`の戻り値を直接受け取る形に修正して解決
-- **`Option Explicit`の重複記述**：モジュール内に`Option Explicit`が2回記述されていたことが原因で、モジュールレベルで宣言したはずの`Const`が別プロシージャから「変数が定義されていません」エラーになる現象が発生。重複を削除し、宣言セクションを一本化して解決
-- **棒グラフに線用のスタイル関数を適用**：配色統一の実装時、折れ線グラフ用の`ApplyLineStyle`（線の色を変更）を誤って棒グラフに適用してしまい、色が反映されない現象が発生。棒グラフの塗りつぶし色を変えるには`ApplyBarStyle`（Fill.ForeColor）が必要で、グラフの種類ごとに適切な関数を使い分ける必要があると再確認
 
 ## 今後の拡張アイデア
 
