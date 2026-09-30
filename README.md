@@ -76,7 +76,7 @@ callcenter-report-automation/
 
 ## 実装で詰まった点と対応
 
-実務経験だけでは気づけなかった、VBA特有のハマりどころです。
+実装中に気づいた、VBA特有のハマりどころです。
 
 - **CSV取り込み時の文字化け**：`Workbooks.Open`や`OpenText`では日本語が文字化けしたため、`QueryTables`経由で`TextFilePlatform=65001`（UTF-8）を明示して解決
 - **Dictionary.Keysの型不一致**：`Scripting.Dictionary`の`.Keys`メソッドは文字列配列ではなくVariant配列を返す仕様のため、受け取り側の型宣言を`Variant`に修正
