@@ -7,13 +7,15 @@
 コールセンターのSVやクレジットカード会社の不正利用防止業務など、約20年にわたり現場で働いてきました。その経験をもとに、コールセンターでよくある「日々の入電データを集計してレポート化する」作業を、Python（データ生成）とExcel VBA（集計・グラフ化）で自動化しました。
 
 ## 構成
+```
 callcenter-report-automation/
-├── generate_fake_data.py # 架空データ生成（Python）
+├── generate_fake_data.py              # 架空データ生成（Python）
 ├── data/
-│ ├── callcenter_report.csv # 生成された日次・シフト別CSVデータ
-│ └── callcenter_hourly_report.csv # 生成された時間帯別CSVデータ
-├── callcenter-report-automation.xlsm # 集計・グラフ化（Excel VBA）
+│   ├── callcenter_report.csv          # 生成された日次・シフト別CSVデータ
+│   └── callcenter_hourly_report.csv   # 生成された時間帯別CSVデータ
+├── callcenter-report-automation.xlsm  # 集計・グラフ化（Excel VBA）
 └── README.md
+```
 
 
 処理は2段構えです。
