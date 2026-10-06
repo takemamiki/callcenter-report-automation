@@ -118,15 +118,6 @@ def is_sick_leave_day(business_date: date) -> bool:
     return random.random() < prob
 
 
-def is_sick_leave_day(business_date: date) -> bool:
-    """その業務日の夜勤で、病欠が発生するかどうかを判定する"""
-    if business_date.month in SICK_LEAVE_WINTER_MONTHS:
-        prob = SICK_LEAVE_PROB_WINTER
-    else:
-        prob = SICK_LEAVE_PROB_NORMAL
-    return random.random() < prob
-
-
 def generate_incident_periods() -> list:
     """365日の期間中に、障害が起きる(開始日時, 継続時間)のリストを作る"""
     incident_count = random.randint(2, 3)  # 年2〜3回
