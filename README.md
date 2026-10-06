@@ -102,7 +102,7 @@ SLA目標や各種閾値は、Settingsシートに名前付き範囲として登
 | 名前付き範囲 | 内容 | 初期値 |
 |---|---|---|
 | SLA_Target | SLA目標の応答率 | 90% |
-| Inbound_Upper_Threshold | 入電上振れとみなす増加率の閾値（上限500%） | +20% |
+| Inbound_Upper_Threshold | 入電上振れとみなす増加率の閾値 | +20% |
 | Min_Diff_Hourly | 入電上振れ判定に使う、時間帯あたりの最小件数差 | 50件 |
 | Min_Missed_Hourly | SLA未達のうち「要確認」とする、取りこぼし件数の最小値 | 2件 |
 
