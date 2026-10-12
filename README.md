@@ -2,11 +2,20 @@
 
 クレジットカード会社のコールセンター業務を想定した、架空データによる日報集計・グラフ化の自動化ポートフォリオです。
 
+![Summaryシートの例（分析コメント・時間帯別集計）](images/summary.png)
+
 ## 背景
 
 コールセンターのSVやクレジットカード会社の不正利用防止業務など、約20年にわたり現場で働いてきました。その経験をもとに、コールセンターでよくある「日々の入電データを集計してレポート化する」作業を、Python（データ生成）とExcel VBA（集計・グラフ化）で自動化しました。
 
 実データは一切使用せず、すべて架空のデータで構築しています。SLA目標や各種閾値も、実在の企業の基準ではなく、この作品のために設定した仮想の値です。
+
+## 動作環境
+
+- Windows 10
+- Microsoft Excel（マクロ有効ブック .xlsm が使えるもの）
+- Python 3.14.4（動作確認済みのバージョン）
+  - 標準ライブラリ（csv、random、datetime）のみを使用しているため、追加のインストールは不要です
 
 ## 構成
 
@@ -16,6 +25,8 @@ callcenter-report-automation/
 ├── data/
 │   ├── callcenter_report.csv          # 生成された日次・シフト別CSVデータ
 │   └── callcenter_hourly_report.csv   # 生成された時間帯別CSVデータ
+├── images/
+│   └── summary.png                    # Summaryシートのスクリーンショット
 ├── callcenter-report-automation.xlsm  # 集計・グラフ化（Excel VBA）
 └── README.md
 ```
@@ -89,11 +100,42 @@ callcenter-report-automation/
 
 ## 使い方
 
-1. `generate_fake_data.py` を実行し、`data/callcenter_report.csv` と `data/callcenter_hourly_report.csv` を生成
-2. `callcenter-report-automation.xlsm` を開き、マクロを有効化
-3. `ImportCallCenterData` マクロを実行し、日次CSVをDataシートに取り込み
-4. `ImportHourlyData` マクロを実行し、時間帯別CSVをHourlyDataシートに取り込み
-5. `CreateSummary` マクロを実行し、Summaryシートに集計表とグラフを自動生成（日次系・時間帯別系の集計をまとめて実行）
+> `callcenter-report-automation.xlsm` には、サンプルとして実行済みの結果が保存されています。
+> ファイルを開くだけで、完成した集計表・グラフ・分析コメントを確認できます。
+> マクロを実行すると、`data` フォルダのCSVから作り直されます。
+
+### 0. 準備
+
+1. このページ右上の「Code」→「Download ZIP」でダウンロード
+2. ダウンロードしたZIPを右クリック→「すべて展開」
+   （ZIPをダブルクリックして開いただけでは展開されていないため、正しく動きません）
+
+### 1. データ生成（Python）
+
+`data` フォルダには生成済みのCSVが入っているため、この手順は省略できます。
+データを作り直したい場合のみ実行してください。
+
+1. 展開したフォルダ（`generate_fake_data.py` があるフォルダ）を開く
+2. フォルダ上部のアドレスバーに `cmd` と入力してEnter
+3. 表示された画面で、次のコマンドを実行
+
+   ```
+   python generate_fake_data.py
+   ```
+
+   動かない場合は `py generate_fake_data.py` を試してください。
+4. `data` フォルダに `callcenter_report.csv` と `callcenter_hourly_report.csv` が生成されます
+
+### 2. 集計・グラフ化（Excel VBA）
+
+1. `callcenter-report-automation.xlsm` を開く
+2. マクロを有効にする
+   - 黄色の帯「セキュリティの警告」が出た場合：「コンテンツの有効化」をクリック
+   - 赤色の帯「セキュリティリスク」が出た場合：Excelを閉じ、ファイルを右クリック→「プロパティ」→「全般」タブ下部の「許可する」にチェック→「OK」の後、開き直す
+3. Alt＋F8でマクロ一覧を開き、次の順に実行
+   1. `ImportCallCenterData`：日次CSVをDataシートに取り込み
+   2. `ImportHourlyData`：時間帯別CSVをHourlyDataシートに取り込み
+   3. `CreateSummary`：Summaryシートに集計表・グラフ・分析コメントを作成
 
 ## Settingsシートについて
 
