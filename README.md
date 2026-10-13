@@ -2,6 +2,7 @@
 
 クレジットカード会社のコールセンター業務を想定した、架空データによる日報集計・グラフ化の自動化ポートフォリオです。
 
+![ボタン1つで集計・グラフ・分析コメントまで自動作成](images/demo.gif)
 ![Summaryシートの例（分析コメント・時間帯別集計）](images/summary.png)
 
 ## 背景
@@ -26,6 +27,7 @@ callcenter-report-automation/
 │   ├── callcenter_report.csv          # 生成された日次・シフト別CSVデータ
 │   └── callcenter_hourly_report.csv   # 生成された時間帯別CSVデータ
 ├── images/
+│   ├── demo.gif                       # 操作デモ（GIF）
 │   └── summary.png                    # Summaryシートのスクリーンショット
 ├── callcenter-report-automation.xlsm  # 集計・グラフ化（Excel VBA）
 └── README.md
